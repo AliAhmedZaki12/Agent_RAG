@@ -1,1 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Agentic RAG — Workspace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --font: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --bg:       #F7F6F2;
+  --bg2:      #FFFFFF;
+  --bg3:      #EFEDE8;
+  --card:     #FFFFFF;
+  --border:   #E3E0D8;
+  --border2:  #C9C6BC;
+  --accent:   #1A56DB;
+  --accent-l: #EEF3FE;
+  --green:    #0D7C4A;
+  --green-l:  #E8F6EE;
+  --amber:    #B45309;
+  --amber-l:  #FEF3C7;
+  --text:     #18181B;
+  --text2:    #52525B;
+  --text3:    #A1A1AA;
+  --shadow:   0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 18px rgba(0,0,0,.09),0 1px 4px rgba(0,0,0,.05);
+  --r:        10px;
+  --r-lg:     14px;
+}
+[data-theme="dark"] {
+  --bg:       #0D0F14;
+  --bg2:      #131720;
+  --bg3:      #191E2B;
+  --card:     #131720;
+  --border:   #1E2535;
+  --border2:  #293049;
+  --accent:   #4F8EF7;
+  --accent-l: rgba(79,142,247,.12);
+  --green:    #3DD68C;
+  --green-l:  rgba(61,214,140,.1);
+  --amber:    #F59E0B;
+  --amber-l:  rgba(245,158,11,.1);
+  --text:     #E2E5EF;
+  --text2:    #8896B3;
+  --text3:    #3D4F6E;
+  --shadow:   0 1px 4px rgba(0,0,0,.35);
+  --shadow-md:0 6px 24px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;transition:background .2s,color .2s}
 
+/* ── Layout ─────────────────────────── */
+.shell{display:grid;grid-template-columns:220px 1fr;grid-template-rows:54px 1fr;height:100vh;overflow:hidden}
+
+/* ── Topbar ─────────────────────────── */
+.topbar{grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:0 18px;background:var(--bg2);border-bottom:1px solid var(--border);box-shadow:var(--shadow)}
+.logo{display:flex;align-items:center;gap:9px}
+.logo-mark{width:30px;height:30px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:600;font-family:var(--mono);flex-shrink:0}
+.logo-text{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.015em}
+.logo-text span{color:var(--accent)}
+.topbar-mid{flex:1;display:flex;align-items:center;justify-content:center}
+.chip{display:flex;align-items:center;gap:6px;padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--bg3);font-size:12px;color:var(--text2)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(13,124,74,.4)}60%{box-shadow:0 0 0 5px rgba(13,124,74,0)}}
+[data-theme="dark"] .live-dot{animation:pulse-d 2s infinite}
+@keyframes pulse-d{0%,100%{box-shadow:0 0 0 0 rgba(61,214,140,.4)}60%{box-shadow:0 0 0 5px rgba(61,214,140,0)}}
+.topbar-right{display:flex;gap:7px;align-items:center}
+.icon-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--text2);transition:all .12s}
+.icon-btn:hover{background:var(--bg3);color:var(--text);border-color:var(--border2)}
+
+/* ── Sidebar ─────────────────────────── */
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sb-section{padding:14px 10px 4px}
+.sb-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin:0 4px 8px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r);font-size:13px;color:var(--text2);cursor:pointer;transition:all .12s;margin-bottom:1px}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--accent-l);color:var(--accent);font-weight:500}
+.nav-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+.divider{height:1px;background:var(--border);margin:8px 12px}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px 10px 8px}
+.stat-box{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;text-align:center}
+.stat-val{font-size:19px;font-weight:600;font-family:var(--mono);color:var(--text)}
+.stat-lbl{font-size:10px;color:var(--text3);margin-top:1px}
+
+/* Suggested */
+.sugg-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--r);font-size:12px;color:var(--text2);cursor:pointer;transition:all .12s}
+.sugg-item:hover{background:var(--bg3);color:var(--text)}
+.sugg-icon{font-size:12px;width:16px;text-align:center;flex-shrink:0}
+
+/* Footer help */
+.sb-footer{margin-top:auto;padding:12px 10px;border-top:1px solid var(--border)}
+.help-cta{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg3);cursor:pointer;transition:all .15s}
+.help-cta:hover{border-color:var(--accent);background:var(--accent-l)}
+.help-cta:hover .hc-title{color:var(--accent)}
+
+/* ── Main ─────────────────────────────── */
+.main{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+
+/* Chat */
+.chat-area{flex:1;overflow-y:auto;padding:20px 22px;display:flex;flex-direction:column;gap:16px}
+.chat-area::-webkit-scrollbar{width:4px}
+.chat-area::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* Welcome */
+.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:8px;padding:24px;text-align:center}
+.wlc-icon{width:52px;height:52px;border-radius:14px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;margin-bottom:6px;box-shadow:0 4px 16px rgba(26,86,219,.25)}
+.welcome h2{font-size:21px;font-weight:600;letter-spacing:-.02em;color:var(--text)}
+.welcome p{font-size:13px;color:var(--text2);max-width:340px;line-height:1.7}
+
+/* Quick actions */
+.qa-wrap{width:100%;max-width:540px;margin-top:14px;display:flex;flex-direction:column;gap:12px}
+.qa-group-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.1em}
+.qa-row{display:flex;gap:7px;flex-wrap:wrap}
+.qa-btn{display:flex;align-items:center;gap:6px;padding:8px 13px;border-radius:var(--r);border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;font-size:12px;font-family:var(--font);transition:all .12s;box-shadow:var(--shadow)}
+.qa-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-l);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.qa-btn .qi{font-size:13px}
+
+/* Messages */
+.msg{display:flex;gap:10px;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.msg.user{flex-direction:row-reverse}
+.avatar{width:32px;height:32px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.avatar.agent{background:var(--accent);color:#fff}
+.avatar.user{background:var(--bg3);border:1px solid var(--border);color:var(--text2)}
+.bubble{max-width:66%;padding:11px 15px;border-radius:12px;font-size:13.5px;line-height:1.65}
+.msg.agent .bubble{background:var(--card);border:1px solid var(--border);border-top-left-radius:4px;box-shadow:var(--shadow);color:var(--text)}
+.msg.user  .bubble{background:var(--accent);color:#fff;border-top-right-radius:4px}
+.bubble-footer{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.tag{font-size:10px;padding:2px 8px;border-radius:6px;font-weight:500}
+.tag-rag   {background:var(--accent-l);color:var(--accent)}
+.tag-web   {background:var(--green-l); color:var(--green)}
+.tag-memory{background:var(--amber-l); color:var(--amber)}
+.tag-ok    {background:var(--green-l); color:var(--green)}
+.tag-warn  {background:var(--amber-l); color:var(--amber)}
+.tag-iter  {background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+.msg-acts{display:flex;gap:4px;margin-top:7px;flex-wrap:wrap}
+.msg-act{font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text3);transition:all .12s;font-family:var(--font)}
+.msg-act:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-l)}
+
+/* Typing */
+.typing{padding:12px 15px;display:flex;align-items:center;gap:5px}
+.typing span{width:6px;height:6px;background:var(--text3);border-radius:50%;animation:blink 1.1s infinite}
+.typing span:nth-child(2){animation-delay:.18s}
+.typing span:nth-child(3){animation-delay:.36s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+
+/* Input bar */
+.input-bar{padding:10px 18px 16px;background:var(--bg2);border-top:1px solid var(--border)}
+.smart-row{display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap}
+.smart-btn{display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:20px;border:1px solid var(--border);background:var(--bg);font-size:11px;color:var(--text2);cursor:pointer;font-family:var(--font);transition:all .12s;white-space:nowrap}
+.smart-btn:hover{border-color:var(--border2);color:var(--text);background:var(--bg3)}
+.smart-btn.active{border-color:var(--accent);color:var(--accent);background:var(--accent-l)}
+.input-row{display:flex;gap:8px;align-items:flex-end;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:8px 10px 8px 14px;transition:border-color .15s,box-shadow .15s}
+.input-row:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+[data-theme="dark"] .input-row:focus-within{box-shadow:0 0 0 3px rgba(79,142,247,.15)}
+#q{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--font);font-size:13.5px;resize:none;min-height:22px;max-height:130px}
+#q::placeholder{color:var(--text3)}
+.send-btn{width:34px;height:34px;border-radius:8px;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;transition:all .12s;flex-shrink:0}
+.send-btn:hover{opacity:.85;transform:scale(1.05)}
+.send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.input-hint{font-size:10px;color:var(--text3);margin-top:5px;text-align:right}
+kbd{font-family:var(--mono);font-size:10px;padding:1px 5px;border-radius:4px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2)}
+
+/* Drop zone */
+.drop-zone{display:none;border:1.5px dashed var(--border2);border-radius:var(--r);padding:14px;text-align:center;font-size:12px;color:var(--text3);margin-bottom:9px;cursor:pointer;transition:all .15s}
+.drop-zone.visible{display:block}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);color:var(--accent);background:var(--accent-l)}
+
+/* Upload view */
+#view-upload{display:none;padding:24px;overflow-y:auto}
+#view-upload h2{font-size:17px;font-weight:600;margin-bottom:16px;letter-spacing:-.01em}
+
+/* ── Help Modal ─────────────────────── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:100;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);width:490px;max-width:92vw;max-height:82vh;overflow-y:auto;box-shadow:var(--shadow-md);animation:slideUp .18s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.modal-head{display:flex;align-items:center;gap:10px;padding:18px 20px 14px;border-bottom:1px solid var(--border)}
+.modal-head h3{font-size:15px;font-weight:600;flex:1;letter-spacing:-.01em}
+.modal-x{cursor:pointer;color:var(--text3);font-size:20px;line-height:1;padding:2px;transition:color .12s}
+.modal-x:hover{color:var(--text)}
+.modal-body{padding:18px 20px 22px}
+.ms-title{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.m-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.m-item:last-child{border-bottom:none}
+.m-icon{font-size:16px;width:22px;text-align:center;flex-shrink:0;margin-top:1px}
+.m-txt{font-size:13px;color:var(--text2);line-height:1.6}
+.m-txt strong{color:var(--text);display:block;font-weight:500;margin-bottom:1px}
+.ms{margin-bottom:16px}
+</style>
+</head>
+<body data-theme="light">
+<div class="shell">
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="logo">
+    <div class="logo-mark">R</div>
+    <div class="logo-text">Agentic<span>RAG</span></div>
+  </div>
+  <div class="topbar-mid">
+    <div class="chip"><div class="live-dot"></div><span id="status-txt">Ready</span></div>
+  </div>
+  <div class="topbar-right">
+    <div class="icon-btn" title="Help &amp; Guide" onclick="openHelp()">?</div>
+    <div class="icon-btn" title="Toggle theme" onclick="toggleTheme()"><span id="ti">☽</span></div>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-section">
+    <div class="sb-label">Workspace</div>
+    <div class="nav-item active" id="nav-chat" onclick="switchView('chat')"><span class="nav-icon">💬</span> Chat</div>
+    <div class="nav-item" id="nav-upload" onclick="switchView('upload')"><span class="nav-icon">📁</span> Upload Docs</div>
+  </div>
+  <div class="divider"></div>
+  <div class="sb-section"><div class="sb-label">Session Stats</div></div>
+  <div class="stats-grid">
+    <div class="stat-box"><div class="stat-val" id="sc-q">0</div><div class="stat-lbl">Queries</div></div>
+    <div class="stat-box"><div class="stat-val" id="sc-acc">—</div><div class="stat-lbl">Accuracy</div></div>
+    <div class="stat-box"><div class="stat-val" id="sc-docs">0</div><div class="stat-lbl">Docs</div></div>
+    <div class="stat-box"><div class="stat-val" id="sc-src">—</div><div class="stat-lbl">Top Route</div></div>
+  </div>
+  <div class="divider"></div>
+  <div class="sb-section">
+    <div class="sb-label">Quick Ask</div>
+    <div class="sugg-item" onclick="fillQ('Give me an executive summary of all uploaded documents')"><span class="sugg-icon">📋</span> Summarize docs</div>
+    <div class="sugg-item" onclick="fillQ('What are the most important topics covered in my documents?')"><span class="sugg-icon">🔍</span> Key topics</div>
+    <div class="sugg-item" onclick="fillQ('Compare and contrast the main ideas across documents')"><span class="sugg-icon">⚖</span> Compare ideas</div>
+    <div class="sugg-item" onclick="fillQ('What are the latest AI research trends today?')"><span class="sugg-icon">🌐</span> AI news today</div>
+    <div class="sugg-item" onclick="fillQ('What actions or next steps are recommended based on the documents?')"><span class="sugg-icon">→</span> Next steps</div>
+  </div>
+  <div class="sb-footer">
+    <div class="help-cta" onclick="openHelp()">
+      <span style="font-size:16px">💡</span>
+      <div>
+        <div class="hc-title" style="font-size:12px;font-weight:500;color:var(--text)">How to use</div>
+        <div style="font-size:11px;color:var(--text3)">Tips &amp; shortcuts</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- CHAT VIEW -->
+  <div id="view-chat" style="display:flex;flex-direction:column;height:100%;overflow:hidden">
+    <div class="chat-area" id="chat">
+      <div class="welcome" id="welcome">
+        <div class="wlc-icon">✦</div>
+        <h2>What can I help you with?</h2>
+        <p>Ask me anything — I'll search your documents, browse the web, or recall from our conversation.</p>
+        <div class="qa-wrap">
+          <div class="qa-group-label">📋 Summarize</div>
+          <div class="qa-row">
+            <button class="qa-btn" onclick="fillQ('Write an executive summary of the uploaded documents')"><span class="qi">📋</span> Executive summary</button>
+            <button class="qa-btn" onclick="fillQ('List the 5 most important takeaways from my documents')"><span class="qi">⭐</span> Top 5 takeaways</button>
+            <button class="qa-btn" onclick="fillQ('Explain the main concept in simple, plain English')"><span class="qi">💬</span> Simplify it</button>
+            <button class="qa-btn" onclick="fillQ('Give me a bullet-point summary of all key information')"><span class="qi">•</span> Bullet summary</button>
+          </div>
+          <div class="qa-group-label" style="margin-top:4px">❓ Question Design</div>
+          <div class="qa-row">
+            <button class="qa-btn" onclick="fillQ('What problem does this address and how is it solved?')"><span class="qi">🎯</span> Problem &amp; solution</button>
+            <button class="qa-btn" onclick="fillQ('Who is the target audience and what do they need?')"><span class="qi">👥</span> Target audience</button>
+            <button class="qa-btn" onclick="fillQ('What are the risks or limitations mentioned?')"><span class="qi">⚠</span> Risks &amp; limits</button>
+            <button class="qa-btn" onclick="fillQ('What evidence or data supports the main claims?')"><span class="qi">📊</span> Evidence &amp; data</button>
+            <button class="qa-btn" onclick="fillQ('What recommended next steps or actions are described?')"><span class="qi">→</span> Next steps</button>
+            <button class="qa-btn" onclick="fillQ('What assumptions underlie the main argument?')"><span class="qi">🔬</span> Assumptions</button>
+          </div>
+          <div class="qa-group-label" style="margin-top:4px">🌐 Web Research</div>
+          <div class="qa-row">
+            <button class="qa-btn" onclick="fillQ('What is the current state of this topic in recent news?')"><span class="qi">📰</span> Current news</button>
+            <button class="qa-btn" onclick="fillQ('What are the latest trends and developments in this field?')"><span class="qi">📈</span> Latest trends</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INPUT BAR -->
+    <div class="input-bar">
+      <div class="smart-row">
+        <button class="smart-btn" onclick="applyTpl('summarize')">📋 Summarize</button>
+        <button class="smart-btn" onclick="applyTpl('bullets')">• Bullet points</button>
+        <button class="smart-btn" onclick="applyTpl('explain')">💡 Explain simply</button>
+        <button class="smart-btn" onclick="applyTpl('compare')">⚖ Compare</button>
+        <button class="smart-btn" onclick="applyTpl('risks')">⚠ Find risks</button>
+        <button class="smart-btn" onclick="applyTpl('steps')">→ Next steps</button>
+        <button class="smart-btn" id="btn-att" onclick="toggleDrop()" style="margin-left:auto">📎 Attach</button>
+      </div>
+      <div class="drop-zone" id="dz" onclick="document.getElementById('fi').click()"
+           ondragover="event.preventDefault();this.classList.add('drag')"
+           ondragleave="this.classList.remove('drag')"
+           ondrop="handleDrop(event)">
+        Drag a file here or click to browse (.txt .md .pdf)
+        <input type="file" id="fi" accept=".txt,.md,.pdf" style="display:none" onchange="handleFile(this.files[0])"/>
+      </div>
+      <div class="input-row">
+        <textarea id="q" rows="1" placeholder="Ask a question or describe what you need…"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"
+          oninput="autoGrow(this)"></textarea>
+        <button class="send-btn" id="sb" onclick="sendMsg()">&#10148;</button>
+      </div>
+      <div class="input-hint"><kbd>Enter</kbd> send &nbsp;·&nbsp; <kbd>Shift+Enter</kbd> new line</div>
+    </div>
+  </div>
+
+  <!-- UPLOAD VIEW -->
+  <div id="view-upload">
+    <h2>Upload Documents</h2>
+    <div class="drop-zone visible" style="display:block;margin-bottom:16px" onclick="document.getElementById('fi2').click()"
+         ondragover="event.preventDefault();this.classList.add('drag')"
+         ondragleave="this.classList.remove('drag')"
+         ondrop="handleDrop2(event)">
+      <div style="font-size:28px;margin-bottom:8px">📄</div>
+      Drop a file here or click to browse (.txt, .md, .pdf)
+      <input type="file" id="fi2" accept=".txt,.md,.pdf" style="display:none" onchange="handleFile2(this.files[0])"/>
+    </div>
+    <div id="ing-status" style="font-family:var(--mono);font-size:12px;color:var(--text2);margin-bottom:16px"></div>
+    <div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Or paste text directly:</div>
+      <textarea id="raw-text" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;color:var(--text);font-family:var(--mono);font-size:12px;min-height:130px;resize:vertical;outline:none"></textarea>
+      <button onclick="ingestRaw()" style="margin-top:8px;padding:9px 20px;background:var(--accent);color:#fff;border:none;border-radius:var(--r);cursor:pointer;font-family:var(--font);font-size:13px;font-weight:500">Save to Knowledge Base</button>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<!-- HELP MODAL -->
+<div class="modal-bg" id="hm" onclick="if(event.target===this)closeHelp()">
+  <div class="modal">
+    <div class="modal-head">
+      <span style="font-size:18px">💡</span>
+      <h3>How to use Agentic RAG</h3>
+      <span class="modal-x" onclick="closeHelp()">×</span>
+    </div>
+    <div class="modal-body">
+      <div class="ms">
+        <div class="ms-title">Getting started</div>
+        <div class="m-item"><span class="m-icon">📁</span><div class="m-txt"><strong>Upload your documents</strong>Go to "Upload Docs" and drag in a .txt, .md, or .pdf file. It gets indexed automatically for search.</div></div>
+        <div class="m-item"><span class="m-icon">💬</span><div class="m-txt"><strong>Ask anything</strong>Type a question in the chat. The system decides automatically: search your docs, browse the web, or use conversation memory.</div></div>
+        <div class="m-item"><span class="m-icon">✅</span><div class="m-txt"><strong>Verified answers only</strong>A Critic agent validates every answer before delivery. Unverified answers are retried up to 3 times automatically.</div></div>
+      </div>
+      <div class="ms">
+        <div class="ms-title">Smart helper buttons</div>
+        <div class="m-item"><span class="m-icon">📋</span><div class="m-txt"><strong>Summarize</strong>Prepends a summarization instruction — perfect for quick overviews of long documents.</div></div>
+        <div class="m-item"><span class="m-icon">•</span><div class="m-txt"><strong>Bullet points</strong>Reformats the expected answer as a clean bullet list for easy scanning.</div></div>
+        <div class="m-item"><span class="m-icon">⚖</span><div class="m-txt"><strong>Compare</strong>Frames the question around contrasting multiple topics, documents, or approaches.</div></div>
+        <div class="m-item"><span class="m-icon">⚠</span><div class="m-txt"><strong>Find risks</strong>Focuses the answer on limitations, drawbacks, and potential issues.</div></div>
+        <div class="m-item"><span class="m-icon">→</span><div class="m-txt"><strong>Next steps</strong>Extracts recommended actions or follow-on tasks from the content.</div></div>
+      </div>
+      <div class="ms">
+        <div class="ms-title">How routing works</div>
+        <div class="m-item"><span class="m-icon">🗂</span><div class="m-txt"><strong>RAG route</strong>Questions about your uploaded files — uses Hybrid Search (Dense + BM25) with Cross-Encoder reranking.</div></div>
+        <div class="m-item"><span class="m-icon">🌐</span><div class="m-txt"><strong>Web route</strong>Questions requiring current data — answered via Tavily real-time web search.</div></div>
+        <div class="m-item"><span class="m-icon">🧠</span><div class="m-txt"><strong>Memory route</strong>References to earlier conversation — answered instantly from session memory.</div></div>
+      </div>
+      <div class="ms">
+        <div class="ms-title">Keyboard shortcuts</div>
+        <div class="m-item"><span class="m-icon">⌨</span><div class="m-txt"><kbd>Enter</kbd> Send message &nbsp;&nbsp; <kbd>Shift+Enter</kbd> New line &nbsp;&nbsp; <kbd>Esc</kbd> Close this panel</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────
+let qCount=0,groundedCount=0,docCount=0,busy=false;
+let rc={rag:0,web:0,memory:0};
+const API = document.querySelector('meta[name="api-url"]')?.content || 'http://localhost:8000';
+const MODE='demo';
+const DEMOS=[
+  {a:"Based on the uploaded documents, the system features three collaborative AI agents: a Router that decides the best source, a Retriever that fetches information using Hybrid Search (Dense + BM25) with Cross-Encoder reranking, and a Critic that validates every answer before delivery.",r:"rag",g:true,i:1},
+  {a:"According to current web search results, the AI landscape is evolving rapidly — reasoning models, agentic frameworks, and retrieval-augmented generation are among the most adopted techniques in enterprise AI deployments as of this year.",r:"web",g:true,i:2},
+  {a:"Recalling our earlier conversation: you were asking about the Agentic RAG pipeline. The key insight is that separating routing, retrieval, and validation across specialized agents significantly improves answer accuracy over single-LLM approaches.",r:"memory",g:true,i:1},
+  {a:"The executive summary across your documents highlights three interconnected themes: intelligent automation, evidence-based decision making, and verifiable AI outputs. Together they form a framework for responsible AI deployment in production environments.",r:"rag",g:true,i:1},
+];
+let di=0;
+
+// ── Helpers ─────────────────────────────────────────────
+const $=id=>document.getElementById(id);
+function autoGrow(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,130)+'px'}
+function fillQ(t){const q=$('q');q.value=t;autoGrow(q);$('welcome')?.remove();q.focus()}
+function updateStats(){
+  $('sc-q').textContent=qCount;
+  $('sc-docs').textContent=docCount;
+  $('sc-acc').textContent=qCount>0?Math.round(groundedCount/qCount*100)+'%':'—';
+  const top=Object.entries(rc).sort((a,b)=>b[1]-a[1])[0];
+  $('sc-src').textContent=top&&top[1]>0?top[0].toUpperCase():'—';
+}
+
+// ── Template buttons ─────────────────────────────────────
+const TPL={
+  summarize:'Summarize the following in a concise paragraph: ',
+  bullets:'Rewrite as a bullet-point list: ',
+  explain:'Explain this in simple plain English: ',
+  compare:'Compare and contrast the key perspectives on: ',
+  risks:'Identify the main risks and limitations of: ',
+  steps:'List the recommended next steps or actions for: ',
+};
+function applyTpl(k){
+  const q=$('q'),pre=TPL[k];
+  if(!q.value.startsWith(pre))q.value=pre+(q.value.trim()||'');
+  autoGrow(q);
+  document.querySelectorAll('.smart-btn').forEach(b=>b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  q.focus();
+}
+
+// ── Messages ─────────────────────────────────────────────
+function addMsg(role,text,meta={}){
+  $('welcome')?.remove();
+  const chat=$('chat');
+  const wrap=document.createElement('div');
+  wrap.className=`msg ${role}`;
+  const av=document.createElement('div');
+  av.className=`avatar ${role}`;
+  av.textContent=role==='user'?'U':'✦';
+  const body=document.createElement('div');
+  const bub=document.createElement('div');
+  bub.className='bubble';
+  bub.textContent=text;
+  body.appendChild(bub);
+  if(role==='agent'){
+    const ft=document.createElement('div');
+    ft.className='bubble-footer';
+    if(meta.r){const t=document.createElement('span');t.className=`tag tag-${meta.r}`;t.textContent=meta.r.toUpperCase();ft.appendChild(t)}
+    if(meta.g!==undefined){const t=document.createElement('span');t.className=`tag ${meta.g?'tag-ok':'tag-warn'}`;t.textContent=meta.g?'✓ Verified':'⚠ Unverified';ft.appendChild(t)}
+    if(meta.i>1){const t=document.createElement('span');t.className='tag tag-iter';t.textContent=`×${meta.i} retries`;ft.appendChild(t)}
+    bub.appendChild(ft);
+    // Follow-up action buttons
+    const acts=document.createElement('div');
+    acts.className='msg-acts';
+    [['📋 Summarize this','Summarize this answer in 2 sentences: '],['• Bullet list','Rewrite as bullets: '],['🔍 More detail','Expand on this with more detail: ']].forEach(([lbl,pre])=>{
+      const btn=document.createElement('button');
+      btn.className='msg-act';btn.textContent=lbl;
+      btn.onclick=()=>fillQ(pre+text.slice(0,120)+(text.length>120?'…':''));
+      acts.appendChild(btn);
+    });
+    body.appendChild(acts);
+  }
+  wrap.appendChild(av);wrap.appendChild(body);
+  chat.appendChild(wrap);chat.scrollTop=chat.scrollHeight;
+}
+function showTyping(){
+  const d=document.createElement('div');d.className='msg agent';d.id='typing';
+  d.innerHTML=`<div class="avatar agent">✦</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  $('chat').appendChild(d);$('chat').scrollTop=$('chat').scrollHeight;
+}
+function hideTyping(){$('typing')?.remove()}
+
+// ── Send ─────────────────────────────────────────────────
+async function sendMsg(){
+  const inp=$('q'),q=inp.value.trim();
+  if(!q||busy)return;
+  inp.value='';inp.style.height='auto';
+  busy=true;$('sb').disabled=true;
+  $('status-txt').textContent='Thinking…';
+  document.querySelectorAll('.smart-btn').forEach(b=>b.classList.remove('active'));
+  addMsg('user',q);showTyping();
+  const steps=['Routing…','Retrieving…','Validating…'];
+  steps.forEach((s,i)=>setTimeout(()=>$('status-txt').textContent=s,(i+1)*650));
+  try{
+    let res;
+    if(MODE==='api'){
+      const r=await fetch(`${API}/query`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q})});
+      res=await r.json();
+    }else{
+      await new Promise(r=>setTimeout(r,2100));
+      const d=DEMOS[di++%DEMOS.length];
+      res={answer:d.a,grounded:d.g,trace:[{route:d.r}],iters:d.i};
+    }
+    hideTyping();
+    qCount++;if(res.grounded)groundedCount++;
+    const route=res.trace?.[0]?.route||'rag';
+    rc[route]=(rc[route]||0)+1;
+    addMsg('agent',res.answer,{r:route,g:res.grounded,i:res.iterations||res.trace?.length||1});
+    $('status-txt').textContent='Ready';
+  }catch(e){
+    hideTyping();
+    addMsg('agent',`⚠ Connection error: ${e.message}`);
+    $('status-txt').textContent='Error';
+  }
+  busy=false;$('sb').disabled=false;updateStats();
+}
+
+// ── Upload ───────────────────────────────────────────────
+function toggleDrop(){const z=$('dz'),b=$('btn-att');z.classList.toggle('visible');b.classList.toggle('active')}
+async function handleFile(f){
+  if(!f)return;
+  if(MODE==='api'){
+    try{
+      const fd=new FormData();fd.append('file',f);
+      const res=await fetch(`${API}/ingest/file`,{method:'POST',body:fd});
+      const data=await res.json();
+      docCount+=data.chunks||0;updateStats();toggleDrop();
+      addMsg('agent',`"${f.name}" uploaded — ${data.chunks||'?'} chunks indexed.\nYou can now ask questions about its content.`,{r:'rag',g:true,i:1});
+    }catch(e){addMsg('agent',`Upload failed: ${e.message}`);}
+  }else{
+    const r=new FileReader();
+    r.onload=e=>{const c=Math.ceil(e.target.result.length/512);docCount+=c;updateStats();toggleDrop();addMsg('agent',`"${f.name}" indexed — ~${c} chunks.\nYou can now ask questions about its content.`,{r:'rag',g:true,i:1})};
+    r.readAsText(f);
+  }
+}
+function handleDrop(ev){ev.preventDefault();ev.currentTarget.classList.remove('drag');handleFile(ev.dataTransfer.files[0])}
+function handleFile2(f){const st=$('ing-status');st.textContent=`Processing ${f.name}…`;const r=new FileReader();r.onload=e=>{const c=Math.ceil(e.target.result.length/512);docCount+=c;st.textContent=`✅ Saved — ${c} chunks from "${f.name}"`;updateStats()};r.readAsText(f)}
+function handleDrop2(ev){ev.preventDefault();ev.currentTarget.classList.remove('drag');handleFile2(ev.dataTransfer.files[0])}
+async function ingestRaw(){
+  const t=$('raw-text').value.trim();
+  if(!t)return;
+  const chunks=t.match(/[\s\S]{1,512}/g)||[];
+  if(MODE==='api'){
+    try{
+      const res=await fetch(`${API}/ingest`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({texts:chunks})});
+      const data=await res.json();
+      docCount+=data.chunks||chunks.length;
+    }catch(e){$('ing-status').textContent=`Upload error: ${e.message}`;return;}
+  }else{docCount+=chunks.length;}
+  $('ing-status').textContent=` Saved — ${chunks.length} chunks`;
+  $('raw-text').value='';updateStats();
+}
+
+// ── Navigation ───────────────────────────────────────────
+function switchView(v){
+  $('view-chat').style.display=v==='chat'?'flex':'none';
+  $('view-upload').style.display=v==='upload'?'block':'none';
+  $('nav-chat').classList.toggle('active',v==='chat');
+  $('nav-upload').classList.toggle('active',v==='upload');
+}
+
+// ── Theme ────────────────────────────────────────────────
+function toggleTheme(){
+  const dark=document.body.getAttribute('data-theme')==='dark';
+  document.body.setAttribute('data-theme',dark?'light':'dark');
+  $('ti').textContent=dark?'☽':'☀';
+}
+
+// ── Help ─────────────────────────────────────────────────
+function openHelp(){$('hm').classList.add('open')}
+function closeHelp(){$('hm').classList.remove('open')}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeHelp()});
+</script>
+</body>
+</html>
